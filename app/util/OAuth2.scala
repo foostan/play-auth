@@ -1,5 +1,8 @@
 package util
 
+import java.util.UUID
+
+import controllers.Application._
 import play.api.Application
 import play.api.Play
 import play.api.http.{MimeTypes, HeaderNames}
@@ -37,6 +40,14 @@ class OAuth2(application: Application) {
 object OAuth2 extends Controller {
   lazy val oauth2 = new OAuth2(Play.current)
 
+  def authorize = Action { implicit request =>
+    val scope = "repo"
+    val callbackUrl = util.routes.OAuth2.callback(None, None).absoluteURL()
+    val state = UUID.randomUUID().toString // random confirmation string
+    val redirectUrl = oauth2.getAuthorizationUrl(callbackUrl, scope, state)
+    Redirect(redirectUrl).withSession("oauth-state" -> state)
+  }
+
   def callback(codeOpt: Option[String] = None, stateOpt: Option[String] = None) = Action.async { implicit request =>
     (for {
       code <- codeOpt
@@ -62,8 +73,8 @@ object OAuth2 extends Controller {
       WS.url("https://api.github.com/user/repos").
         withHeaders(HeaderNames.AUTHORIZATION -> s"token $authToken").
         get().map { response =>
-          Ok(response.json)
-        }
+        Ok(response.json)
+      }
     }
   }
 }
