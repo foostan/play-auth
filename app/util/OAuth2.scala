@@ -18,7 +18,9 @@ class OAuth2(application: Application) {
 
   def getAuthorizationUrl(redirectUri: String, scope: String, state: String): String = {
     val baseUrl = application.configuration.getString("github.redirect.url").get
-    baseUrl.format(githubAuthId, redirectUri, scope, state)
+
+    baseUrl + "?client_id=%s&redirect_uri=%s&scope=%s&state=%s"
+      .format(githubAuthId, redirectUri, scope, state)
   }
 
   def getToken(code: String): Future[String] = {
