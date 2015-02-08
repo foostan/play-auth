@@ -3,11 +3,8 @@
 # ~~~~
 
 # Home page
-GET        /                       controllers.Application.index
-
-# Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file           controllers.Assets.at(path="/public", file)
+GET        /                       controllers.Application.authorization
 
 # OAuth2 Stuff
-GET        /_oauth-callback        util.OAuth2.callback(code: Option[String], state: Option[String])
-GET        /_oauth-success         util.OAuth2.success
+GET        /auth/oauth2/callback        util.OAuth2.callback(code: Option[String], state: Option[String])
+GET        /auth/oauth2/success         util.OAuth2.success
